@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # EduGrievance
 
 A production-ready complaint management system built with the MERN stack.
@@ -90,7 +89,7 @@ Use these details to log in as the administrator:
 | **Password** | `password123` |
 
 ---
-
+<!--
 ## Sample Admin Contact Info
 - **Office:** Room 402, Main Block
 - **Phone:** +91 9876543210
@@ -99,3 +98,4 @@ Use these details to log in as the administrator:
 =======
 # EduGrievance
 >>>>>>> cc320534e24afa642058e892adbdbe0920a6ef81
+-->
