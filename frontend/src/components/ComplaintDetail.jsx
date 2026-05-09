@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Clock, CheckCircle, AlertCircle, MessageSquare, Info, Download, Trash2, HelpCircle } from 'lucide-react';
 
 const getStatusColor = (status) => {
@@ -48,10 +48,9 @@ const ComplaintDetail = ({ complaint, user, onUpdate, onClose }) => {
 
                         // If Admin, delete from DB immediately. Otherwise, refresh will hide it
                         if (isAdmin) {
-                            const token = localStorage.getItem('token');
-                            axios.delete(`http://localhost:5000/api/complaints/${complaint._id}`, {
-                                headers: { Authorization: `Bearer ${token}` }
-                            }).then(() => onUpdate()).catch(err => console.error(err));
+                            api.delete(`/complaints/${complaint._id}`)
+                                .then(() => onUpdate())
+                                .catch(err => console.error(err));
                         } else {
                             onUpdate();
                         }
@@ -78,16 +77,13 @@ const ComplaintDetail = ({ complaint, user, onUpdate, onClose }) => {
         } else {
             setTimeLeft(null);
         }
-    }, [complaint.status, complaint.completedAt, onUpdate, timeLeft]);
+    }, [complaint.status, complaint.completedAt, onUpdate, timeLeft, isAdmin, complaint._id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/complaints/${complaint._id}`, formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.put(`/complaints/${complaint._id}`, formData);
             onUpdate();
         } catch (err) {
             console.error(err);
@@ -148,8 +144,8 @@ const ComplaintDetail = ({ complaint, user, onUpdate, onClose }) => {
                             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Evidence Files</span>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
                                 {complaint.evidence.map((file, index) => {
-                                    const relativePath = file.startsWith('uploads/') ? file : `uploads/${file}`;
-                                    const fileUrl = `http://localhost:5000/${relativePath.replace(/\\/g, '/')}`;
+                                    // With Cloudinary, file is already the URL
+                                    const fileUrl = file;
                                     const isVideo = /\.(mp4|mov|avi|wmv)$/i.test(file);
 
                                     return (
@@ -260,6 +256,5 @@ const ComplaintDetail = ({ complaint, user, onUpdate, onClose }) => {
         </div>
     );
 };
-;
 
 export default ComplaintDetail;

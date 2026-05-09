@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, ArrowLeft, CheckCircle, AlertCircle, KeyRound } from 'lucide-react';
 
@@ -23,7 +23,7 @@ const ForgotPassword = () => {
         setError(null);
 
         try {
-            await axios.post('http://localhost:5000/api/auth/sendotp', { email });
+            await api.post('/auth/sendotp', { email });
             setStep(2);
             setLoading(false);
         } catch (err) {
@@ -53,7 +53,7 @@ const ForgotPassword = () => {
         setError(null);
 
         try {
-            await axios.post('http://localhost:5000/api/auth/resetpassword', {
+            await api.post('/auth/resetpassword', {
                 email,
                 otp,
                 newPassword: passwordData.newPassword

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -10,16 +10,12 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const API_URL = 'http://localhost:5000/api/auth';
-
     useEffect(() => {
         const loadUser = async () => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const res = await axios.get(`${API_URL}/me`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
+                    const res = await api.get('/auth/me');
                     setUser(res.data.data);
                 } catch (err) {
                     localStorage.removeItem('token');
@@ -34,12 +30,10 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError(null);
-            const res = await axios.post(`${API_URL}/login`, { email, password });
+            const res = await api.post('/auth/login', { email, password });
             localStorage.setItem('token', res.data.token);
 
-            const userRes = await axios.get(`${API_URL}/me`, {
-                headers: { Authorization: `Bearer ${res.data.token}` },
-            });
+            const userRes = await api.get('/auth/me');
             setUser(userRes.data.data);
             return true;
         } catch (err) {
@@ -51,12 +45,10 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             setError(null);
-            const res = await axios.post(`${API_URL}/register`, userData);
+            const res = await api.post('/auth/register', userData);
             localStorage.setItem('token', res.data.token);
 
-            const userRes = await axios.get(`${API_URL}/me`, {
-                headers: { Authorization: `Bearer ${res.data.token}` },
-            });
+            const userRes = await api.get('/auth/me');
             setUser(userRes.data.data);
             return true;
         } catch (err) {

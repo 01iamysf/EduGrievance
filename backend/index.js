@@ -20,13 +20,15 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Set security headers
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+}));
 
 // Enable CORS
-app.use(cors());
-
-// Set static folder
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
+}));
 
 // Connect to database
 const connectDB = async () => {

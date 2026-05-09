@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Filter, Search, MessageSquare, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,10 +22,7 @@ const Dashboard = () => {
     const fetchComplaints = async () => {
         try {
             setError(null);
-            const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/api/complaints', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/complaints');
             setComplaints(res.data.data);
             setLoading(false);
         } catch (err) {
@@ -55,7 +52,7 @@ const Dashboard = () => {
         }
     };
 
-    if (loading) return <div>Loading dashboard...</div>;
+    if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>Loading dashboard...</div>;
 
     return (
         <div className="space-y-8">
@@ -292,7 +289,6 @@ const ComplaintForm = ({ onSuccess }) => {
         setSubmitting(true);
         setError(null);
         try {
-            const token = localStorage.getItem('token');
             const data = new FormData();
             data.append('category', formData.category);
             data.append('description', formData.description);
@@ -302,9 +298,8 @@ const ComplaintForm = ({ onSuccess }) => {
                 data.append('evidence', files[i]);
             }
 
-            await axios.post('http://localhost:5000/api/complaints', data, {
+            await api.post('/complaints', data, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
                 }
             });

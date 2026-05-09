@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Building, Lock, Save, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -25,10 +25,7 @@ const ProfileModal = ({ user, onClose, onUpdate }) => {
         setError(null);
         setSuccess(null);
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.put('http://localhost:5000/api/auth/updatedetails', formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.put('/auth/updatedetails', formData);
             onUpdate(res.data.data);
             setSuccess('Details updated successfully');
             setLoading(false);
@@ -48,12 +45,9 @@ const ProfileModal = ({ user, onClose, onUpdate }) => {
         setError(null);
         setSuccess(null);
         try {
-            const token = localStorage.getItem('token');
-            await axios.put('http://localhost:5000/api/auth/updatepassword', {
+            await api.put('/auth/updatepassword', {
                 currentPassword: passwordData.currentPassword,
                 newPassword: passwordData.newPassword
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             setSuccess('Password updated successfully');
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -74,9 +68,7 @@ const ProfileModal = ({ user, onClose, onUpdate }) => {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete('http://localhost:5000/api/auth/deleteaccount', {
-                headers: { Authorization: `Bearer ${token}` },
+            await api.delete('/auth/deleteaccount', {
                 data: { password: deletePassword }
             });
             localStorage.removeItem('token');
