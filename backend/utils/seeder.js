@@ -1,37 +1,35 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const User = require('../models/user.model');
-const Complaint = require('../models/complaint.model');
 
 dotenv.config();
 
-const users = [
-    {
-        name: 'Admin User',
-        email: 'admin@college.edu',
-        password: 'password123',
-        role: 'Admin',
-        department: 'Administration'
-    }
-];
-
-const seedData = async () => {
+const seedAdmin = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
 
-        // Clear existing data
-        await User.deleteMany();
-        await Complaint.deleteMany();
+        // Only create admin if one doesn't already exist
+        const existing = await User.findOne({ role: 'Admin' });
 
-        // Create users
-        await User.create(users);
+        if (existing) {
+            console.log('Admin already exists, skipping seed.');
+            process.exit();
+        }
 
-        console.log('Demo Data Seeded Successfully!');
+        await User.create({
+            name: 'Admin User',
+            email: 'admin@college.edu',
+            password: 'password123',
+            role: 'Admin',
+            department: 'Administration'
+        });
+
+        console.log('Admin user created successfully!');
         process.exit();
     } catch (err) {
-        console.error(err);
+        console.error('Seeder error:', err);
         process.exit(1);
     }
 };
 
-seedData();
+seedAdmin();
