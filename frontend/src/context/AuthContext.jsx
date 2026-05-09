@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [signingIn, setSigningIn] = useState(false);
 
     const logout = useCallback(() => {
         localStorage.removeItem('token');
@@ -62,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError(null);
+            setSigningIn(true);
             const res = await api.post('/auth/login', { email, password });
             localStorage.setItem('token', res.data.token);
 
@@ -71,6 +73,8 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
             return false;
+        } finally {
+            setSigningIn(false);
         }
     };
 
@@ -95,6 +99,7 @@ export const AuthProvider = ({ children }) => {
                 user,
                 loading,
                 error,
+                signingIn,
                 login,
                 register,
                 logout,
