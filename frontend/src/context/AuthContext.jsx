@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import api from '../utils/api';
 
 const AuthContext = createContext();
@@ -9,6 +9,11 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const logout = useCallback(() => {
+        localStorage.removeItem('token');
+        setUser(null);
+    }, []);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -26,6 +31,33 @@ export const AuthProvider = ({ children }) => {
         };
         loadUser();
     }, []);
+
+    // Idle Timeout Logic (30 minutes)
+    useEffect(() => {
+        let timeout;
+
+        const resetTimer = () => {
+            if (timeout) clearTimeout(timeout);
+            if (user) {
+                timeout = setTimeout(() => {
+                    logout();
+                    alert('Session expired due to inactivity. Please log in again.');
+                }, 30 * 60 * 1000); // 30 minutes
+            }
+        };
+
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+        
+        if (user) {
+            events.forEach(event => window.addEventListener(event, resetTimer));
+            resetTimer(); 
+        }
+
+        return () => {
+            if (timeout) clearTimeout(timeout);
+            events.forEach(event => window.removeEventListener(event, resetTimer));
+        };
+    }, [user, logout]);
 
     const login = async (email, password) => {
         try {
@@ -55,11 +87,6 @@ export const AuthProvider = ({ children }) => {
             setError(err.response?.data?.message || 'Registration failed');
             return false;
         }
-    };
-
-    const logout = () => {
-        localStorage.removeItem('token');
-        setUser(null);
     };
 
     return (
